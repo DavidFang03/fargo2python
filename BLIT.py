@@ -25,6 +25,7 @@ class BlitManager:
         cv = self.canvas
         if event is not None:
             if event.canvas != cv:
+                return
                 raise RuntimeError
         self._bg = cv.copy_from_bbox(cv.figure.bbox)
         self._draw_animated()
