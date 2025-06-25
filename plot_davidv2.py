@@ -2,14 +2,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
 
-import scipy.special
-import scipy.optimize
-import sys
+import modules.tools_plot as tools_plot 
 
 from BLIT import BlitManager
 from david_tools import *
-
-import matplotlib.animation as animation
 
 dark_mode = True
 cmap = 'RdBu_r'
@@ -122,8 +118,8 @@ class MyUpdatedPlot():
         self.maps_zdata.append(zdata)
 
     def add_arrow(self,
-                    pos,
-                    delta,
+                    Pos,
+                    Delta,
                     text="",
                     txt_dx=0.1,
                     txt_dy=0.1,
@@ -133,11 +129,9 @@ class MyUpdatedPlot():
         Both pos and delta must change with time.
         '''
         k = self.curr_on
-        x, y = pos[k,0:2]
-        dx, dy = delta[k,0:2]
-        xytext = (x,y)
-        xy = (x+dx, y+dy)
-        r_tip = np.sqrt((x+dx)**2+(y+dy)**2) # if the tip of the arrow is outside the range of the plot, it will not be shown.
+        self.txt_dx, self.txt_dy = txt_dx, txt_dy
+        xy, xytext, postext = tools_plot.get_coords_for_arrow(Pos[k,0:2], Delta[k,0:2], self.txt_dx, self.txt_dy)
+
 
         kwargs["arrowprops"]["arrowstyle"]="simple"
         kwargs["arrowprops"]["edgecolor"]="white"
@@ -149,21 +143,17 @@ class MyUpdatedPlot():
                     "",
                     xy=xy,
                     xytext=xytext,
+                    annotation_clip=False,
                     **kwargs,
                     )
-        self.txt_dx, self.txt_dy = txt_dx, txt_dy
-        text = self.ax.text(x+dx+txt_dx, y+dy+txt_dy, s=text, va='center', ha='center', color=arrow.arrow_patch.get_facecolor())
 
-        range_map = np.max((self.ax.get_xlim()[1],self.ax.get_ylim()[1]))
-        dr=0.5
-        if r_tip>range_map:
-            self.ax.set_xlim(-1.1*r_tip,1.1*r_tip)
-            self.ax.set_ylim(-1.1*r_tip,1.1*r_tip)
+        text = self.ax.text(*postext, s=text, va='center', ha='center', color=arrow.arrow_patch.get_facecolor())
+
 
         self.arrows.append(arrow)
         self.arrows_text.append(text)
-        self.arrows_pos.append(pos)
-        self.arrows_delta.append(delta)
+        self.arrows_pos.append(Pos)
+        self.arrows_delta.append(Delta)
 
 
     def add_frn(self, xytext=(10,-20), ha='left', pos=(0, 1)):
@@ -222,16 +212,14 @@ class MyUpdatedPlot():
         for i in range(len(self.arrows)):
             arrow = self.arrows[i]
             text = self.arrows_text[i]
-            pos = self.arrows_pos[i]
-            delta = self.arrows_delta[i]
-            x, y = pos[k,0:2]
-            dx, dy = delta[k,0:2]
-            xytext = (x,y)
-            xy = (x+dx, y+dy)
+            Pos = self.arrows_pos[i]
+            Delta = self.arrows_delta[i]
+            xy, xytext, postext = tools_plot.get_coords_for_arrow(Pos[k,0:2], Delta[k,0:2], self.txt_dx, self.txt_dy)
+
 
             arrow.set_position(xytext) # arrow.xytext = machin ne fait rien
             arrow.xy = xy
-            text.xy = (x+dx+self.txt_dx, y+dy+self.txt_dy)
+            text.set_position(*postext)
 
         if len(self.frn) > 0:
             frn = self.frn[0]
@@ -801,6 +789,12 @@ class MyTorque():
         arrow_norm = np.max((norm_arrow_itd,norm_arrow_dir))
         arrow_norm = 2 * 10 ** (np.floor(np.log10(arrow_norm))) # arrondi à la puissance inférieure
         # self.arrow_norm = norm_arrow_itd
+
+        if self.typeI:
+            arrow_norm = 2e-7
+        elif self.typeII:
+            arrow_norm = 2e-6
+
         print(f"Arrow norm : {arrow_norm:.1e}")
         # self.arrow_norm = 1e-7
 
