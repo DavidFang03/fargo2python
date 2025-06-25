@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
+from matplotlib.patches import FancyArrowPatch
 
 import modules.tools_plot as tools_plot 
 
@@ -139,15 +140,18 @@ class MyUpdatedPlot():
         if "lw" not in kwargs["arrowprops"] or "linewidth" not in kwargs["arrowprops"]:
             kwargs["arrowprops"]["lw"]=0.5
 
-        arrow = self.ax.annotate(
-                    "",
-                    xy=xy,
-                    xytext=xytext,
-                    annotation_clip=False,
-                    **kwargs,
-                    )
+        # arrow = self.ax.annotate(
+        #             "",
+        #             xy=xy,
+        #             xytext=xytext,
+        #             annotation_clip=False,
+        #             **kwargs,
+        #             )
 
-        text = self.ax.text(*postext, s=text, va='center', ha='center', color=arrow.arrow_patch.get_facecolor())
+        arrow = FancyArrowPatch(posA=xytext,posB=xy,clip_on=True, mutation_scale=20,**kwargs["arrowprops"]) 
+        self.ax.add_patch(arrow)
+
+        text = self.ax.text(*postext, s=text, va='center', ha='center', color=arrow.get_facecolor(), clip_on=True)
 
 
         self.arrows.append(arrow)
@@ -217,9 +221,9 @@ class MyUpdatedPlot():
             xy, xytext, postext = tools_plot.get_coords_for_arrow(Pos[k,0:2], Delta[k,0:2], self.txt_dx, self.txt_dy)
 
 
-            arrow.set_position(xytext) # arrow.xytext = machin ne fait rien
-            arrow.xy = xy
-            text.set_position(*postext)
+            arrow.set_positions(xytext, xy) # arrow.xytext = machin ne fait rien
+            # arrow.xy = xy
+            text.set_position(postext)
 
         if len(self.frn) > 0:
             frn = self.frn[0]

@@ -15,6 +15,7 @@ plot_settings =     {"tot": False,
                         "rad": False,
                         "MULTI": False,
                         "FT": False}
+# mytorque = MyTorque(plot_settings, funcanim_map=True, on_end=10)
 mytorque = MyTorque(plot_settings, funcanim_map=True)
 
 def iterate(i):

@@ -4,4 +4,4 @@ def get_coords_for_arrow(pos, delta, txt_dx, txt_dy):
     xytext = (x,y)
     xy = (x+dx, y+dy)
     postext = (x+dx+txt_dx, y+dy+txt_dy)
-    return {"xy":xy, "xytext": xytext, "postext":postext}
+    return xy, xytext, postext
