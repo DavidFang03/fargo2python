@@ -12,7 +12,7 @@ from david_tools import *
 import matplotlib.animation as animation
 
 dark_mode = True
-cmaps = ['RdBu_r']
+cmap = 'RdBu_r'
 rangevminvmax = 1
 plot_settings =     {"tot": False,
                         "map": True,
@@ -33,8 +33,10 @@ class MyUpdatedPlot():
                     ylabel:str,
                     title:str,
                     xlims=None,
-                    ylims=None
+                    ylims=None,
                     ):
+
+
         self.dim = dim
         self.fig = fig
         self.ax = ax
@@ -49,6 +51,7 @@ class MyUpdatedPlot():
 
         self.curr_on = mytorque.curr_on
         self.current_orbit = mytorque.current_orbit
+
 
         self.lines          = []
         self.lines_ydata    = []
@@ -193,8 +196,8 @@ class MyUpdatedPlot():
 
 
     def update(self):
-        self.curr_on = mytorque.curr_on
-        self.current_orbit = mytorque.current_orbit
+        self.curr_on = self.mytorque.curr_on
+        self.current_orbit = self.mytorque.current_orbit
         k = self.curr_on
 
         for i in range(len(self.lines)):
@@ -265,6 +268,8 @@ class MyTorque():
         self.plot_settings = plot_settings
 
         ignore_start_for_fft = kwargs.get("ignore_start_for_fft", 0)
+
+        self.funcanim_map = kwargs.get("funcanim_map", False)
 
 
         # ! Grid infos
@@ -395,7 +400,8 @@ class MyTorque():
     def loop(self):
         import par
         for k in range(self.on_start, self.on_end +1):
-            print('output number =', str(k), 'out of', str(len(self.on)), end='\r')
+            # print('output number =', str(k), 'out of', str(len(self.on)), end='\r')
+            print('output number =', str(k), 'out of', str(len(self.on)))
             # print('output number =', str(k), 'out of', str(len(self.on)))
             self.dens = get_dens(self.on,k, par, self.directory)
             self.vphi = get_vphi(self.on,k, par, self.directory)
@@ -413,7 +419,7 @@ class MyTorque():
             eps = compute_epsilon(self.eta, self.ar, xpla, ypla, self.fli) # ? epsilon dépend de la position de la planète ?
 
             distances = np.sqrt(np.linalg.norm(self.vecpos_cells-vecpospla_grid, axis=0)**2+eps**2)
-            dir_acc_cell = (self.vecpos_cells-vecpospla_grid) * DensityPrime/np.pow(distances,3) # intégrande
+            dir_acc_cell = (self.vecpos_cells-vecpospla_grid) * DensityPrime/distances**3 # intégrande
             indir_acc_cell = - DensityPrime/(dens.rmed**3)[:,np.newaxis]*self.vecpos_cells
 
             self.IndirectForce[k,0:3] = np.sum(indir_acc_cell*self.surface, axis=(1,2))
@@ -872,45 +878,44 @@ class MyTorque():
 
     def update_plot(self, i):
         self.current_orbit = round(self.Mytime[self.curr_on])
-        if funcanim_map:
-            return self.FIGS["map"]["uartists"]
         for fig_id, setting in self.plot_settings.items():
             if setting and setting!='no update':
                 uplots = self.FIGS[fig_id]["uplots"]
                 for uplot in uplots:
                     uplot.update()
-                bm = self.FIGS[fig_id]["bm"]
-                bm.update()
+                if self.funcanim_map==False:
+                    bm = self.FIGS[fig_id]["bm"]
+                    bm.update()
+
+        if self.funcanim_map:
+            return self.FIGS["map"]["uartists"]
 
 
 
 
+if dark_mode:
+    # transparent = True
 
+    # matplotlib.pyplot.rcParams['axes.labelcolor'] = "white"
+    # matplotlib.pyplot.rcParams['xtick.color'] = "white"
+    # matplotlib.pyplot.rcParams['ytick.color'] = "white"
+    plt.style.use('dark_background')
+    matplotlib.pyplot.rcParams['axes.facecolor'] = "white"
+    matplotlib.pyplot.rcParams['text.color'] = "white"
+matplotlib.pyplot.rcParams['text.usetex'] = True
+matplotlib.rcParams.update({'font.size': 24})
+matplotlib.rcParams.update({"font.weight": "bold"})
+matplotlib.rcParams.update({"axes.labelweight": "bold"})
 
 if __name__ == "__main__":
 
-    if dark_mode:
-        # transparent = True
+    import gc
 
-        # matplotlib.pyplot.rcParams['axes.labelcolor'] = "white"
-        # matplotlib.pyplot.rcParams['xtick.color'] = "white"
-        # matplotlib.pyplot.rcParams['ytick.color'] = "white"
-        plt.style.use('dark_background')
-        matplotlib.pyplot.rcParams['axes.facecolor'] = "white"
-        matplotlib.pyplot.rcParams['text.color'] = "white"
-    matplotlib.pyplot.rcParams['text.usetex'] = True
-    matplotlib.rcParams.update({'font.size': 24})
-    matplotlib.rcParams.update({"font.weight": "bold"})
-    matplotlib.rcParams.update({"axes.labelweight": "bold"})
+
 
 
     # for index_cmap in range():
-    if oneshot:
-        l=1
-    else:
-        l=len(cmaps)
 
-    cmap = cmaps[index_cmap]
     gc.collect()
     plt.close()
     # mytorque = MyTorque(plot_settings, on_start=-1, ignore_start_for_fft=400)
@@ -919,19 +924,19 @@ if __name__ == "__main__":
         if not os.path.exists(f"./output_imgs"):
             os.mkdir(f"./output_imgs")
         if plot_settings["map"]:
-            name = f"./output_imgs/{mytorque.FIGS["map"]["num"]}"
+            name = f"./output_imgs/{mytorque.FIGS['map']['num']}"
             if dark_mode:
                 name+="-dark"
             name+=".pdf"
             mytorque.fig_map.savefig(name, dpi=600, bbox_inches='tight', transparent=transparent)
         if plot_settings["rad"]:
-            name = f"./output_imgs/{mytorque.FIGS["rad"]["num"]}"
+            name = f"./output_imgs/{mytorque.FIGS['rad']['num']}"
             if dark_mode:
                 name+="-dark"
             name+=".pdf"
             mytorque.fig_rad.savefig(name, dpi=600, bbox_inches='tight', transparent=transparent)
         if plot_settings["tot"]:
-            name = f"./output_imgs/{mytorque.FIGS["tot"]["num"]}"
+            name = f"./output_imgs/{mytorque.FIGS['tot']['num']}"
             if dark_mode:
                 name+="-dark"
             name+=".pdf"

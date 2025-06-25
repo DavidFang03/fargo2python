@@ -26,7 +26,7 @@ def compute_rh(q,a):
     '''
     return hill radius
     '''
-    return np.pow(q/3,1/3)*a+1e-15
+    return q/3**(1/3)*a+1e-15
 
 def mask_rh(R,PHI,xp,yp,rh):
     '''

@@ -1,7 +1,8 @@
-a=dict(de=1)
+import matplotlib.pyplot as plt
 
-print(a["de"])
-a["de"]=2
-a["df"]=3
-if "e" in a:
-    print(a["e"])
+plt.rcParams['text.usetex'] = True
+
+plt.figure()
+plt.plot([0,1],[0,1], label=r'$\mathbf{r}$')
+plt.legend(prop={'size': 35})
+plt.savefig("trash.png")
