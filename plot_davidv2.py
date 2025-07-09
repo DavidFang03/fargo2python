@@ -19,6 +19,7 @@ plot_settings =     {"tot": False,
 
 transparent = False
 oneshot = False
+ext = ".png"
 
 class MyUpdatedPlot():
     def __init__(   self, 
@@ -552,32 +553,46 @@ class MyTorque():
         Tot_uplot.ax.set_ylabel(r'$\Gamma(t)/\Gamma_0$', fontsize=35)
         Tot_uplot.ax.tick_params(labelsize=35)
         rescaling_factor = 10
-        # Tot_uplot.ax.plot(self.time_dirtqdat, self.dirtqdat - self.dirtqdat[-1], label=r"$(\Gamma_{\rm{dir}}-\lim \Gamma_{\rm{dir}})/\Gamma_0$", color="navy")
 
-        # Tot_uplot.ax.plot(self.time_dirtqdat, self.dirtqdat - self.dirtqdat[-1], label=r"$\Gamma_{\rm{corot}}/\Gamma_0$", color="navy")
-        # Tot_uplot.ax.plot(self.time_indtqdat, self.indtqdat*rescaling_factor, label=fr"${rescaling_factor}$" + r"$\times\Gamma_{\rm{ind}}/\Gamma_0$", color="darkorange")
-
-        Tot_uplot.ax.plot(self.time_dirtqdat, self.dirtqdat, label=r"$\Gamma_{\rm{dir}}/\Gamma_0$", color="blue")
-        Tot_uplot.ax.plot(self.time_indtqdat, self.indtqdat, label=r"$\Gamma_{\rm{ind}}/\Gamma_0$", color="orange")
-
+        if self.directory=="out_crida1_novisco_f05_RES":
+            # Tot_uplot.ax.plot(self.time_dirtqdat, self.dirtqdat - self.dirtqdat[-1], label=r"$(\Gamma_{\rm{dir}}-\lim \Gamma_{\rm{dir}})/\Gamma_0$", color="navy")
+            Tot_uplot.ax.plot(self.time_dirtqdat, self.dirtqdat - self.dirtqdat[-1], label=r"$\Gamma_{\rm{corot}}/\Gamma_0$", color="navy")
+            Tot_uplot.ax.plot(self.time_indtqdat, self.indtqdat*rescaling_factor, label=fr"${rescaling_factor}$" + r"$\times\Gamma_{\rm{ind}}/\Gamma_0$", color="darkorange")
+        elif self.directory=="out_crida1_visco_f05_RES":
+            Tot_uplot.ax.plot(self.time_dirtqdat[:-11], self.dirtqdat[:-11], label=r"$\Gamma_{\rm{dir}}/\Gamma_0$", color="blue")
+            Tot_uplot.ax.plot(self.time_indtqdat[:-11], self.indtqdat[:-11], label=r"$\Gamma_{\rm{ind}}/\Gamma_0$", color="orange")
+        else:
+            Tot_uplot.ax.plot(self.time_dirtqdat, self.dirtqdat, label=r"$\Gamma_{\rm{dir}}/\Gamma_0$", color="blue")
+            Tot_uplot.ax.plot(self.time_indtqdat, self.indtqdat, label=r"$\Gamma_{\rm{ind}}/\Gamma_0$", color="orange")
 
         Tot_uplot.ax.axhline(y=0,xmin=-50,xmax=520, color="black", alpha=0.6)
         if self.directory=="out_crida1_novisco_f05_RES":
             Tot_uplot.ax.set_xticks([10,100,200,300,400,500],["$10$","$100$","$200$","$300$","$400$","$500$"])
             Tot_uplot.ax.set_xlim(10, 500)
+        elif self.directory=="out_crida1_visco_f05_RES":
+            Tot_uplot.ax.set_xticks([10,10,20,30,40,50],["$10$","$10$","$20$","$30$","$40$","$50$"])
+            Tot_uplot.ax.set_xlim(9, 51)
+        elif self.directory=="out_crida2_novisco_f05_RES":
+            Tot_uplot.ax.set_xticks([10,100,200,300,400,500],["$10$","$100$","$200$","$300$","$400$","$500$"])
+            Tot_uplot.ax.set_xlim(10, 505)
         # MULTI_tot_uplot.add_dot(self.Mytime, self.Dtorque_tot)
         # MULTI_tot_uplot.add_dot(self.Mytime, self.Itorque_tot)
                 # # ! Insert Plot
-        # axins = Tot_uplot.ax.inset_axes([0.4, 0.15, 0.5, 0.25], zorder=50)
-        # axins.plot(self.freq, np.abs(self.fft_indtqdat_normalized),"+", label=r"$FT(\Gamma_{\rm{ind}})$", color="darkorange")
-        # axins.plot(self.freq, np.abs(self.fft_corot_normalized), "x", label=r"$FT(\Gamma_{\rm{corot}})$", color="navy")
-        # axins.set_xlabel(r"$\nu$ [orbits$^{-1}$]", fontsize = 25)
-        # axins.set_ylabel(r"$|\rm{FFT}(\Gamma)|$", fontsize = 25)
-        # axins.set_xticks([0,0.01,0.02,0.03,0.04,0.05],[r"$0$",r"$0.01$","$0.02$",r"$0.03$",r"$0.04$",r"$0.05$"])
-        # axins.tick_params(labelsize=27)
-        # # axins.yticks_params(fontsize=12)
-        # axins.set_xlim(0, 0.05)
-        # axins.set_ylim(0, top=1.1)
+        if self.directory=="out_crida1_novisco_f05_RES":
+            axins = Tot_uplot.ax.inset_axes([0.4, 0.15, 0.5, 0.25], zorder=50)
+            axins.plot(self.freq, np.abs(self.fft_indtqdat_normalized),"+", label=r"$FT(\Gamma_{\rm{ind}})$", color="darkorange")
+            axins.plot(self.freq, np.abs(self.fft_corot_normalized), "x", label=r"$FT(\Gamma_{\rm{corot}})$", color="navy")
+            axins.set_xlabel(r"$\nu$ [orbits$^{-1}$]", fontsize = 25)
+            axins.set_ylabel(r"$|\rm{FFT}(\Gamma)|$", fontsize = 25)
+            axins.set_xticks([0,0.01,0.02,0.03,0.04,0.05],[r"$0$",r"$0.01$","$0.02$",r"$0.03$",r"$0.04$",r"$0.05$"], color="black")
+            axins.tick_params(labelsize=27)
+            # axins.yticks_params(fontsize=12)
+            axins.set_xlim(0, 0.05)
+            axins.set_ylim(0, top=1.1)
+            for _, spine in axins.spines.items() :
+                spine.set_color('black')
+            for axis in [axins.xaxis, axins.yaxis]:
+                axis.label.set_color('black')
 
         # Tot_uplot.ax.scatter(self.time_dirtqdat[1:-1], self.rta_Dtorque,label=r"$\frac{1}{t}\int_0^t \Gamma_{dir}(t^\prime)dt^\prime /\Gamma_0$", alpha=0.4, marker="s",color="blue")
         # Tot_uplot.ax.scatter(self.time_indtqdat[1:-1], self.rta_Itorque,label=r"$\frac{1}{t}\int_0^t \Gamma_{ind}(t^\prime)dt^\prime /\Gamma_0$", alpha=0.4, marker="s",color="orange")
@@ -816,12 +831,12 @@ class MyTorque():
         MAP_uplot.add_arrow(0* self.IndirectForce, - self.IndirectForce/arrow_norm,text=r"$\mathbf a_{\star,\rm d}$", arrowprops=dict(facecolor="orange"), txt_dx=itxt_dx, txt_dy=itxt_dy)
 
         MAP_uplot.add_arrow(np.column_stack([self.Xpla,self.Ypla]), self.DirectForce/arrow_norm,text=r"$\mathbf{a}_{\rm{dir}}$", arrowprops=dict(facecolor="blue"), txt_dx=dtxt_dx, txt_dy=dtxt_dy)
-        if self.typeI:
-            MAP_uplot.ax.set_xlim(-1.5,3.5)
-            MAP_uplot.ax.set_ylim(-3.5,1.5)
-        else:
-            MAP_uplot.ax.set_xlim(-3,3)
-            MAP_uplot.ax.set_ylim(-3,3)
+        # if self.typeI:
+        #     MAP_uplot.ax.set_xlim(-1.5,3.5)
+        #     MAP_uplot.ax.set_ylim(-3.5,1.5)
+        # else:
+        #     MAP_uplot.ax.set_xlim(-3,3)
+        #     MAP_uplot.ax.set_ylim(-3,3)
 
         MAP_uplot.lock()
 
@@ -925,19 +940,19 @@ if __name__ == "__main__":
             name = f"./output_imgs/{mytorque.FIGS['map']['num']}"
             if dark_mode:
                 name+="-dark"
-            name+=".pdf"
+            name+=ext
             mytorque.fig_map.savefig(name, dpi=600, bbox_inches='tight', transparent=transparent)
         if plot_settings["rad"]:
             name = f"./output_imgs/{mytorque.FIGS['rad']['num']}"
             if dark_mode:
                 name+="-dark"
-            name+=".pdf"
+            name+=ext
             mytorque.fig_rad.savefig(name, dpi=600, bbox_inches='tight', transparent=transparent)
         if plot_settings["tot"]:
             name = f"./output_imgs/{mytorque.FIGS['tot']['num']}"
             if dark_mode:
                 name+="-dark"
-            name+=".pdf"
+            name+=ext
             mytorque.fig_tot.savefig(name, dpi=600, bbox_inches='tight', transparent=transparent)
     else:
         print(mytorque.FIGS.keys())
