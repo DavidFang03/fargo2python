@@ -308,12 +308,27 @@ def plotdisccom():
 
         if par.plot_disccom == 'tlogrfit':
             ax.set_yscale('log')
-            t_comfit = t_com[1:int(3*len(t_com)/5)]
-            r_comfit = r_com[1:int(3*len(t_com)/5)]
+
+            tau = compute_tau(directory[j])
+            time_start_fit = 3*tau
+            threshold = 1e-3
+            start_fit = np.argmax(t_com > time_start_fit)
+
+            if np.any(r_com > threshold):
+                end_fit = np.argmax(r_com > threshold)
+            else:
+                end_fit = -1
+
+            if end_fit-start_fit<5:
+                start_fit = int(0.1*len(t_com))
+                end_fit = int(0.9*len(t_com))
+
+            t_comfit = t_com[start_fit:end_fit]
+            r_comfit = r_com[start_fit:end_fit]
             a,b = np.polyfit(t_comfit,np.log(r_comfit), deg=1)
             ax.plot(t_comfit, np.exp(a*t_comfit+b), color=par.c20[j])
 
-            ax.scatter(t_com[1:len(t_com)-1], r_com[1:len(t_com)-1], s=20, marker='+', alpha=1.0, color=par.c20[j],label=f"{mylabel} : $\\tau={1/a:.0f}$")
+            ax.scatter(t_com[1:len(t_com)-1], r_com[1:len(t_com)-1], s=20, marker='+', alpha=0.5, color=par.c20[j],label=f"{mylabel} : $\\tau={1/a:.0f}$")
 
         # save data in ascii file
         fileout = open('log10rcom_'+str(directory[j])+'.dat','w')
@@ -371,3 +386,17 @@ def common_segments(s1,s2):
             prefix.append(a)
     return '_'.join(prefix)
 
+def compute_tau(dir):
+    import par
+    command = par.awk_command+' " /^SigmaSlope/ " '+dir+'/*.par'
+    buf = subprocess.getoutput(command)
+    sigmaslope = float(buf.split()[1])
+    command = par.awk_command+' " /^Sigma0/ " '+dir+'/*.par'
+    buf = subprocess.getoutput(command)
+    sigma0 = float(buf.split()[1])
+    command = par.awk_command+' " /^WKZRmin/ " '+dir+'/*.par'
+    buf = subprocess.getoutput(command)
+    wkzrmin = float(buf.split()[1])
+
+    tau = 10 * (wkzrmin**2/(sigma0*wkzrmin**(-sigmaslope)))
+    return tau
