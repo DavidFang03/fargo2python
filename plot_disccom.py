@@ -355,9 +355,19 @@ def plotdisccom():
     if len(directory) == 1:           
        outfile = 'com_'+par.plot_disccom+'_'+str(directory[0])
     else:
-       outfile = 'com_'+par.plot_disccom
+       outfile = 'com_'+par.plot_disccom+'_'+common_segments(directory[0], directory[1])
     fileout = outfile+'.pdf'
     if par.saveaspdf == 'Yes':
         plt.savefig('./'+fileout, dpi=160)
     if par.saveaspng == 'Yes':
         plt.savefig('./'+re.sub('.pdf', '.png', fileout), dpi=120)
+
+def common_segments(s1,s2):
+    seg1 = s1.split('_')
+    seg2 = s2.split('_')
+    prefix = []
+    for a, b in zip(seg1, seg2):
+        if a == b:
+            prefix.append(a)
+    return '_'.join(prefix)
+
