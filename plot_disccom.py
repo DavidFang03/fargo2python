@@ -21,7 +21,7 @@ def plotdisccom():
     if par.plot_disccom == 'xy':
         xtitle = 'centre-of-mass x'
         ytitle = 'centre-of-mass y'
-    if par.plot_disccom == 'tr' or par.plot_disccom == 'tlogr' or par.plot_disccom == 'logtlogr':
+    if par.plot_disccom == 'tr' or par.plot_disccom == 'tlogr' or par.plot_disccom == 'logtlogr' or par.plot_disccom == 'tlogrfit':
         xtitle = 'time [orbits]'
         ytitle = 'centre-of-mass radius'
         if par.physical_units == 'Yes':
@@ -305,6 +305,15 @@ def plotdisccom():
             ax.set_xscale('log')
             ax.set_yscale('log')
             ax.scatter(t_com[1:len(t_com)-1], r_com[1:len(t_com)-1], s=20, marker='+', alpha=1.0, color=par.c20[j],label=mylabel)
+
+        if par.plot_disccom == 'tlogrfit':
+            ax.set_yscale('log')
+            t_comfit = t_com[1:int(3*len(t_com)/5)]
+            r_comfit = r_com[1:int(3*len(t_com)/5)]
+            a,b = np.polyfit(t_comfit,np.log(r_comfit), deg=1)
+            ax.plot(t_comfit, np.exp(a*t_comfit+b), color=par.c20[j])
+
+            ax.scatter(t_com[1:len(t_com)-1], r_com[1:len(t_com)-1], s=20, marker='+', alpha=1.0, color=par.c20[j],label=f"{mylabel} : $\\tau={1/a:.0f}$")
 
         # save data in ascii file
         fileout = open('log10rcom_'+str(directory[j])+'.dat','w')
