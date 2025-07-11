@@ -7,6 +7,14 @@ import subprocess
 
 from shutil import which
 
+import argparse
+parser = argparse.ArgumentParser(
+        description="Fargo2Python"
+    )
+parser.add_argument("--out", default=False, type=str)
+args = parser.parse_args()
+cmdline_directory = args.out
+
 # special color scale for 1D plots:
 c20 = [(31, 119, 180), (255, 128, 128), (0, 153, 76), (255, 187, 120),
        (214, 39, 40), (174, 199, 232), (152, 223, 138), (255, 152, 150),    
@@ -66,6 +74,10 @@ for line in lines_params:
                     value = [int(x) for x in value.split(',')]
                 if name == 'directory' or name == 'plot_planet' or name == 'plot_dust' or name == 'use_legend' or name == 'filename':
                     value = [str(x) for x in value.split(',')]
+
+                if name == 'directory' and cmdline_directory:
+                    value=[cmdline_directory]
+
             else:
                 value = '"' + value + '"'   # if none of the above tests work, we know value is a string
     par.append(value)
@@ -73,6 +85,8 @@ for line in lines_params:
 
 for i in range(len(par)):
     exec(var[i]+"="+str(par[i]))
+
+print(directory)
 
 # Check whether awk or gawk are installed!
 if which('gawk') is not None:
