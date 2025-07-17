@@ -227,7 +227,7 @@ def plotdust():
             # input files for ffpmeg
             input_files = par.plot_dust[0]+'_'+par.plot_dust[1]+'_'+str(directory[0])+'_%04d.png'
             # output file for ffmpeg
-            filempg = par.plot_dust[0]+'_'+par.plot_dust[1]+'_'+str(directory[0])+'_'+str(on[0])+'_'+str(on[len(on)-1])+'.mpg'
+            filemp4 = par.plot_dust[0]+'_'+par.plot_dust[1]+'_'+str(directory[0])+'_'+str(on[0])+'_'+str(on[len(on)-1])+'.mp4'
         else:
             # png files that have been created above
             allpngfiles = [par.plot_dust[0]+'_'+par.plot_dust[1]+'_'+str(on[x]).zfill(4)+'.png' for x in range(len(on))]
@@ -236,14 +236,14 @@ def plotdust():
             # input files for ffpmeg
             input_files = par.plot_dust[0]+'_'+par.plot_dust[1]+'_%04d.png'
             # output file for ffmpeg
-            filempg = par.plot_dust[0]+'_'+par.plot_dust[1]+'_'+str(on[0])+'_'+str(on[len(on)-1])+'.mpg'
+            filemp4 = par.plot_dust[0]+'_'+par.plot_dust[1]+'_'+str(on[0])+'_'+str(on[len(on)-1])+'.mp4'
         # call to python-ffmpeg
         import ffmpeg
         (
             ffmpeg            
             .input(input_files, framerate=10, start_number=str_on_start_number)
             # framerate=10 means the video will play at 10 of the original images per second
-            .output(filempg, r=30, pix_fmt='yuv420p', **{'qscale:v': 3})
+            .output(filemp4, r=30, pix_fmt='yuv420p', **{'qscale:v': 3})
             # r=30 means the video will play at 30 frames per second
             .overwrite_output()
             .run()

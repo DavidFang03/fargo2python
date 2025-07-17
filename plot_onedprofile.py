@@ -213,7 +213,7 @@ def plotonedprofile():
             # input files for ffpmeg
             input_files = 'axi'+par.fluid+'_'+par.whatfield+'_'+str(directory[0])+'_%04d.png'
             # output file for ffmpeg
-            filempg = 'axi'+par.fluid+'_'+par.whatfield+'_'+str(directory[0])+'_'+str(on[0])+'_'+str(on[len(on)-1])+'.mpg'    
+            filemp4 = 'axi'+par.fluid+'_'+par.whatfield+'_'+str(directory[0])+'_'+str(on[0])+'_'+str(on[len(on)-1])+'.mp4'    
         else:
             # png files that have been created above
             allpngfiles = ['axi'+par.fluid+'_'+par.whatfield+'_'+str(on[x]).zfill(4)+'.png' for x in range(len(on))]
@@ -222,23 +222,23 @@ def plotonedprofile():
             # input files for ffpmeg
             input_files = 'axi'+par.fluid+'_'+par.whatfield+'_%04d.png'
             # output file for ffmpeg
-            filempg = 'axi'+par.fluid+'_'+par.whatfield+'_'+str(on[0])+'_'+str(on[len(on)-1])+'.mpg'
+            filemp4 = 'axi'+par.fluid+'_'+par.whatfield+'_'+str(on[0])+'_'+str(on[len(on)-1])+'.mp4'
         # options
         if par.take_one_point_every != 1:
             str_on_start_number = str(0)
         else:
             str_on_start_number = str(on[0])
         if par.nodiff == 'Yes':
-            filempg = re.sub('.mpg', '_nodiff.mpg', filempg)
+            filemp4 = re.sub('.mp4', '_nodiff.mp4', filemp4)
         if par.z_average == 'Yes':
-            filempg = re.sub('.mpg', '_zave.mpg', filempg)
+            filemp4 = re.sub('.mp4', '_zave.mp4', filemp4)
         # call to python-ffmpeg
         import ffmpeg
         (
             ffmpeg            
             .input(input_files, framerate=10, start_number=str_on_start_number)
             # framerate=10 means the video will play at 10 of the original images per second
-            .output(filempg, r=30, pix_fmt='yuv420p', **{'qscale:v': 3})
+            .output(filemp4, r=30, pix_fmt='yuv420p', **{'qscale:v': 3})
             # r=30 means the video will play at 30 frames per second
             .overwrite_output()
             .run()

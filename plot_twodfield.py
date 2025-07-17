@@ -769,16 +769,16 @@ def plottwodfield():
         # input files for ffpmeg
         input_files = par.fluid+'_'+par.whatfield+'_'+directory+'_'+par.fieldofview+'_'+par.slice+'_'+par.z_average+'_%04d.png'
         # output file for ffmpeg
-        filempg = par.fluid+'_'+par.whatfield+'_'+directory+'_'+par.fieldofview+'_'+par.slice+'_'+par.z_average+'_'+str(on[0])+'_'+str(on[len(on)-1])+'.mpg'
+        filemp4 = par.fluid+'_'+par.whatfield+'_'+directory+'_'+par.fieldofview+'_'+par.slice+'_'+par.z_average+'_'+str(on[0])+'_'+str(on[len(on)-1])+'.mp4'
         # options
         if par.showdust == 'Yes':
             allpngfiles = [par.fluid+'_'+par.whatfield+'_'+directory+'_'+par.fieldofview+'_'+par.slice+'_'+par.z_average+'_'+str(on[x]).zfill(4)+'_dust.png' for x in range(len(on))]
             if par.take_one_point_every != 1:
                 allpngfiles = [par.fluid+'_'+par.whatfield+'_'+directory+'_'+par.fieldofview+'_'+par.slice+'_'+par.z_average+'_'+str(x).zfill(4)+'_dust.png' for x in range(len(on))]
             input_files = par.fluid+'_'+par.whatfield+'_'+directory+'_'+par.fieldofview+'_'+par.slice+'_'+par.z_average+'_%04d_dust.png'
-            filempg = re.sub('.mpg', '_dust.mpg', filempg)
+            filemp4 = re.sub('.mp4', '_dust.mp4', filemp4)
         if par.nodiff == 'Yes':
-            filempg = re.sub('.mpg', '_nodiff.mpg', filempg)
+            filemp4 = re.sub('.mp4', '_nodiff.mp4', filemp4)
         # call to ffmpeg-python (you also need to install ffmpeg on your local environement!)
         if len(on) <= 201:
             myframerate = 10
@@ -789,7 +789,7 @@ def plottwodfield():
             ffmpeg            
             .input(input_files, framerate=myframerate, start_number=str_on_start_number)
             # framerate=10 means the video will play at 10 of the original images per second
-            .output(filempg, r=30, pix_fmt='yuv420p', **{'qscale:v': 3})
+            .output(filemp4, r=30, pix_fmt='yuv420p', **{'qscale:v': 3})
             # r=30 means the video will play at 30 frames per second
             .overwrite_output()
             .run()
