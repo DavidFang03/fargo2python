@@ -19,7 +19,15 @@ plot_settings =     {"tot": False,
 
 transparent = False
 oneshot = False
-ext = ".png"
+ext = ".pdf"
+
+remove_frame = False
+
+dpi = 400
+init_on=10
+on_start=0
+on_end=11
+ignore_start_for_fft=10
 
 class MyUpdatedPlot():
     def __init__(   self, 
@@ -791,52 +799,65 @@ class MyTorque():
             vmin, vmax = 0,2
         else:
             vmin, vmax = 1-rangevminvmax/10,1+rangevminvmax/10
+        # vmin,vmax = 0.9,1.1 
             # vmin, vmax = 0.995, 1.005
+        cbar=True
+        if remove_frame:
+            cbar=False
         MAP_uplot.add_map(self.X_GRID,
                 self.Y_GRID,
                 self.Density_norm,
                 cmap=cmap,
-                cbar=True,
+                cbar=cbar,
                 vmin=vmin,
                 vmax=vmax)
 
+        if not remove_frame:
+            MAP_uplot.add_frn(xytext=(-10,-20), ha='right', pos=(1, 1))
 
-        MAP_uplot.add_frn(xytext=(-10,-20), ha='right', pos=(1, 1))
+        # norm_arrow_itd = np.max(np.linalg.norm(self.IndirectForce, axis=1))
+        # norm_arrow_dir = np.max(np.linalg.norm(self.DirectForce, axis=1))
+        # arrow_norm = np.max((norm_arrow_itd,norm_arrow_dir))
+        # arrow_norm = 2 * 10 ** (np.floor(np.log10(arrow_norm))) # arrondi à la puissance inférieure
+        # # self.arrow_norm = norm_arrow_itd
 
-        norm_arrow_itd = np.max(np.linalg.norm(self.IndirectForce, axis=1))
-        norm_arrow_dir = np.max(np.linalg.norm(self.DirectForce, axis=1))
-        arrow_norm = np.max((norm_arrow_itd,norm_arrow_dir))
-        arrow_norm = 2 * 10 ** (np.floor(np.log10(arrow_norm))) # arrondi à la puissance inférieure
-        # self.arrow_norm = norm_arrow_itd
-
-        if self.typeI:
-            arrow_norm = 2e-7
-        elif self.typeII:
-            arrow_norm = 2e-6
-
-        print(f"Arrow norm : {arrow_norm:.1e}")
-        # self.arrow_norm = 1e-7
-
-        if self.typeI:
-            itxt_dx=0.1
-            itxt_dy=0.1
-            dtxt_dx=-0.1
-            dtxt_dy=-0.15
-        else:
-            itxt_dx=0.1
-            itxt_dy=0.2
-            dtxt_dx=-0.1
-            dtxt_dy=-0.1
-
-        MAP_uplot.add_arrow(0* self.IndirectForce, - self.IndirectForce/arrow_norm,text=r"$\mathbf a_{\star,\rm d}$", arrowprops=dict(facecolor="orange"), txt_dx=itxt_dx, txt_dy=itxt_dy)
-
-        MAP_uplot.add_arrow(np.column_stack([self.Xpla,self.Ypla]), self.DirectForce/arrow_norm,text=r"$\mathbf{a}_{\rm{dir}}$", arrowprops=dict(facecolor="blue"), txt_dx=dtxt_dx, txt_dy=dtxt_dy)
         # if self.typeI:
-        #     MAP_uplot.ax.set_xlim(-1.5,3.5)
-        #     MAP_uplot.ax.set_ylim(-3.5,1.5)
+        #     arrow_norm = 2e-7
+        # elif self.typeII:
+        #     arrow_norm = 2e-6
+
+        # print(f"Arrow norm : {arrow_norm:.1e}")
+        # # self.arrow_norm = 1e-7
+
+        # if self.typeI:
+        #     itxt_dx=0.1
+        #     itxt_dy=0.1
+        #     dtxt_dx=-0.1
+        #     dtxt_dy=-0.15
         # else:
-        #     MAP_uplot.ax.set_xlim(-3,3)
-        #     MAP_uplot.ax.set_ylim(-3,3)
+        #     itxt_dx=0.1
+        #     itxt_dy=0.2
+        #     dtxt_dx=-0.1
+        #     dtxt_dy=-0.1
+
+        # MAP_uplot.add_arrow(0* self.IndirectForce, - self.IndirectForce/arrow_norm,text=r"$\mathbf a_{\star,\rm d}$", arrowprops=dict(facecolor="orange"), txt_dx=itxt_dx, txt_dy=itxt_dy)
+
+        # MAP_uplot.add_arrow(np.column_stack([self.Xpla,self.Ypla]), self.DirectForce/arrow_norm,text=r"$\mathbf{a}_{\rm{dir}}$", arrowprops=dict(facecolor="blue"), txt_dx=dtxt_dx, txt_dy=dtxt_dy)
+        if self.funcanim_map:
+            print("animation")
+        elif self.typeI:
+            MAP_uplot.ax.set_xlim(-1.5,3.5)
+            MAP_uplot.ax.set_ylim(-3.5,1.5)
+        else:
+            MAP_uplot.ax.set_xlim(-3,3)
+            MAP_uplot.ax.set_ylim(-3,3)
+
+        # MAP_uplot.ax.set_xlim(-3.5,3.5)
+        # MAP_uplot.ax.set_ylim(-3.5,3.5)
+
+        if remove_frame:
+            MAP_uplot.ax.set_axis_off()
+            MAP_uplot.ax.set_title("")
 
         MAP_uplot.lock()
 
@@ -905,7 +926,6 @@ class MyTorque():
 
 
 
-
 if dark_mode:
     # transparent = True
 
@@ -924,15 +944,13 @@ if __name__ == "__main__":
 
     import gc
 
-
-
-
     # for index_cmap in range():
 
     gc.collect()
     plt.close()
     # mytorque = MyTorque(plot_settings, on_start=-1, ignore_start_for_fft=400)
-    mytorque = MyTorque(plot_settings, on_start=-1, ignore_start_for_fft=10)
+
+    mytorque = MyTorque(plot_settings,init_on=init_on, ignore_start_for_fft=ignore_start_for_fft, on_start=on_start, on_end=on_end)
     if not oneshot:
         if not os.path.exists(f"./output_imgs"):
             os.mkdir(f"./output_imgs")
@@ -940,20 +958,32 @@ if __name__ == "__main__":
             name = f"./output_imgs/{mytorque.FIGS['map']['num']}"
             if dark_mode:
                 name+="-dark"
+            name+=f"_{init_on}"
+            if remove_frame:
+                name+="_noframe"
             name+=ext
-            mytorque.fig_map.savefig(name, dpi=600, bbox_inches='tight', transparent=transparent)
+            mytorque.fig_map.savefig(name, dpi=dpi, bbox_inches='tight', transparent=transparent)
+            print(f"saved {name}")
         if plot_settings["rad"]:
             name = f"./output_imgs/{mytorque.FIGS['rad']['num']}"
             if dark_mode:
                 name+="-dark"
+            name+=f"_{init_on}"
+            if remove_frame:
+                name+="_noframe"
             name+=ext
-            mytorque.fig_rad.savefig(name, dpi=600, bbox_inches='tight', transparent=transparent)
+            mytorque.fig_rad.savefig(name, dpi=dpi, bbox_inches='tight', transparent=transparent)
+            print(f"saved {name}")
         if plot_settings["tot"]:
             name = f"./output_imgs/{mytorque.FIGS['tot']['num']}"
             if dark_mode:
                 name+="-dark"
+            name+=f"_{init_on}"
+            if remove_frame:
+                name+="_noframe"
             name+=ext
-            mytorque.fig_tot.savefig(name, dpi=600, bbox_inches='tight', transparent=transparent)
+            mytorque.fig_tot.savefig(name, dpi=dpi, bbox_inches='tight', transparent=transparent)
+            print(f"saved {name}")
     else:
         print(mytorque.FIGS.keys())
         plt.show()

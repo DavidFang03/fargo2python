@@ -1,5 +1,8 @@
 from plot_davidv2 import MyTorque
 import matplotlib.animation as animation
+import gc
+
+
 
 print("coucou")
 
@@ -15,8 +18,8 @@ plot_settings =     {"tot": False,
                         "rad": False,
                         "MULTI": False,
                         "FT": False}
-# mytorque = MyTorque(plot_settings, funcanim_map=True, on_end=10)
 mytorque = MyTorque(plot_settings, funcanim_map=True)
+# mytorque = MyTorque(plot_settings, on_start=0, on_end=1)
 
 def iterate(i):
     print(i)
@@ -29,3 +32,11 @@ ani = animation.FuncAnimation(mytorque.FIGS['map']['fig'], iterate, frames=mytor
 
 videopath = f"./output_vids/{mytorque.FIGS['map']['num'].replace(' ','-')}-dark"
 ani.save(f"{videopath}.mp4", writer="ffmpeg", fps=6)
+
+# ## SI TROP LOURD
+# nb_outputs = mytorque.nb_outputs
+# for i in range(nb_outputs):
+#     mytorque = MyTorque(plot_settings, on_start=i, on_end=i)
+#     mytorque.FIGS['map']['fig'].savefig(f"./output_movie/map_{i:05}.png", dpi=250)
+#     gc.collect()
+
